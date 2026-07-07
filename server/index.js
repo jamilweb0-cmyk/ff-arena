@@ -8,7 +8,6 @@ const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 const roomRoutes = require("./routes/roomRoutes");
 const bookingRoutes = require("./routes/bookingRoutes");
-
 const statsRoutes = require("./routes/statsRoutes");
 
 const app = express();
@@ -20,23 +19,13 @@ app.use("/api/stats", statsRoutes);
 // Middleware
 // =======================
 
-const allowedOrigins = [
-  "http://localhost:5173",
-  process.env.CLIENT_URL,
-];
-
+// ✅ CORS Configuration - Allow ALL Origins
 app.use(
   cors({
-    origin: function (origin, callback) {
-      if (!origin) return callback(null, true);
-
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-
-      return callback(new Error("Not allowed by CORS"));
-    },
+    origin: true, // যেকোনো URL থেকে request allow করবে
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
   })
 );
 
@@ -53,11 +42,15 @@ connectDB();
 // Routes
 // =======================
 
-
-const errorHandler = require("./middleware/errorHandler");
 app.use("/api/auth", authRoutes);
 app.use("/api/rooms", roomRoutes);
 app.use("/api/bookings", bookingRoutes);
+
+// =======================
+// Error Handler
+// =======================
+
+const errorHandler = require("./middleware/errorHandler");
 app.use(errorHandler);
 
 // =======================
