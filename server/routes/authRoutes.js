@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { jwtSecret } = require("../config/jwt");
 const User = require("../models/User");
+const JWT_SECRET = process.env.JWT_SECRET;
 
 const verifyToken = require("../middleware/verifyToken");
 
@@ -72,7 +73,7 @@ router.post("/login", async (req, res) => {
   {
     email: user.email,
   },
-  jwtSecret,
+  JWT_SECRET,
   {
     expiresIn: "7d",
   }
