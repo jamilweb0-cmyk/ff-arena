@@ -13,13 +13,15 @@ const AddRoom = () => {
     const form = e.target;
 
     const roomData = {
-      room_name: form.room_name.value,
-      map: form.map.value,
-      game_mode: form.game_mode.value,
-      entry_fee: Number(form.entry_fee.value),
-      prize_pool: Number(form.prize_pool.value),
-      image: form.image.value,
-    };
+  room_name: form.room_name.value,
+  map: form.map.value,
+  game_mode: form.game_mode.value,
+  entry_fee: Number(form.entry_fee.value),
+  prize_pool: Number(form.prize_pool.value),
+  image: form.image.value,
+
+  host_email: localStorage.getItem("userEmail"),
+};
 
     try {
       await api.post("/rooms", roomData);
