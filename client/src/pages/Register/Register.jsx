@@ -1,98 +1,240 @@
-import { useState } from "react";
+import {
+useState
+} from "react";
+
 import api from "../../services/axios";
+
 import toast from "react-hot-toast";
 
-const Register = () => {
-  const [error, setError] = useState("");
+import {
+FaEye,
+FaEyeSlash
+} from "react-icons/fa";
 
-  const handleRegister = async (e) => {
-    e.preventDefault();
 
-    setError("");
 
-    const form = e.target;
+const Register=()=>{
 
-    const name = form.name.value;
-    const email = form.email.value;
-    const password = form.password.value;
 
-    const userData = {
-      name,
-      email,
-      password,
-    };
+const [showPassword,setShowPassword]=useState(false);
 
-    try {
-      const res = await api.post("/auth/register", userData);
 
-      toast.success("Account Created Successfully");
+const [error,setError]=useState("");
 
-      form.reset();
 
-    } catch (err) {
 
-      setError(
-        err.response?.data?.message ||
-        "Registration Failed"
-      );
-    }
-  };
 
-  return (
-    <div className="min-h-screen flex justify-center items-center">
+const handleRegister=async(e)=>{
 
-      <div className="w-full max-w-md bg-[#1b1330] p-8 rounded-xl">
 
-        <h1 className="text-3xl font-bold text-center text-purple-400 mb-6">
-          Register
-        </h1>
+e.preventDefault();
 
-        <form onSubmit={handleRegister}>
 
-          <input
-            type="text"
-            name="name"
-            placeholder="Your Name"
-            className="w-full p-3 mb-4 rounded bg-black"
-            required
-          />
+const form=e.target;
 
-          <input
-            type="email"
-            name="email"
-            placeholder="Your Email"
-            className="w-full p-3 mb-4 rounded bg-black"
-            required
-          />
 
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            className="w-full p-3 mb-4 rounded bg-black"
-            required
-          />
 
-          <button
-            className="w-full bg-purple-600 p-3 rounded"
-          >
-            Register
-          </button>
+try{
 
-        </form>
 
-        {
-          error && (
-            <p className="text-red-500 mt-4">
-              {error}
-            </p>
-          )
-        }
+await api.post(
+"/auth/register",
+{
 
-      </div>
+name:
+form.name.value,
 
-    </div>
-  );
+email:
+form.email.value,
+
+password:
+form.password.value,
+
+}
+
+);
+
+
+
+toast.success(
+"Account Created"
+);
+
+
+
+form.reset();
+
+
+
+}catch(err){
+
+
+setError(
+err.response?.data?.message ||
+"Registration Failed"
+);
+
+
+}
+
+
 };
+
+
+
+
+
+return(
+
+
+<div className="min-h-screen flex items-center justify-center">
+
+
+<div className="bg-[#1b1330] p-8 rounded-xl w-full max-w-md">
+
+
+<h1 className="text-3xl text-purple-400 text-center mb-6">
+
+Register
+
+</h1>
+
+
+
+<form onSubmit={handleRegister}>
+
+
+<input
+
+name="name"
+
+placeholder="Name"
+
+required
+
+className="w-full p-3 mb-4 bg-black rounded text-white"
+
+/>
+
+
+<input
+
+name="email"
+
+type="email"
+
+placeholder="Email"
+
+required
+
+className="w-full p-3 mb-4 bg-black rounded text-white"
+
+/>
+
+
+
+<div className="relative">
+
+
+<input
+
+name="password"
+
+type={
+showPassword
+?
+"text"
+:
+"password"
+}
+
+placeholder="Password"
+
+required
+
+className="w-full p-3 bg-black rounded text-white pr-12"
+
+/>
+
+
+<button
+
+type="button"
+
+onClick={()=>
+setShowPassword(!showPassword)
+}
+
+className="
+absolute
+right-4
+top-3
+text-gray-400
+"
+
+>
+
+
+{
+showPassword
+?
+<FaEyeSlash/>
+:
+<FaEye/>
+}
+
+
+</button>
+
+
+</div>
+
+
+
+
+<button
+
+className="
+w-full
+mt-5
+bg-purple-600
+p-3
+rounded
+"
+
+>
+
+Register
+
+</button>
+
+
+</form>
+
+
+
+
+{
+error &&
+<p className="text-red-500 mt-4">
+
+{error}
+
+</p>
+}
+
+
+
+</div>
+
+
+</div>
+
+
+);
+
+
+};
+
 
 export default Register;
