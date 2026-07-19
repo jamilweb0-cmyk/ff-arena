@@ -13,19 +13,17 @@ const statsRoutes = require("./routes/statsRoutes");
 const app = express();
 const port = process.env.PORT || 5000;
 
-app.use("/api/stats", statsRoutes);
-
 // =======================
-// Middleware
+// Middleware (সবার আগে!)
 // =======================
 
-// ✅ CORS Configuration - Allow ALL Origins
 app.use(
   cors({
-    origin: true, // যেকোনো URL থেকে request allow করবে
+    origin: [
+      "http://localhost:5173",
+      "https://ff-arena-three.vercel.app",
+    ],
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
   })
 );
 
@@ -39,12 +37,13 @@ app.use(cookieParser());
 connectDB();
 
 // =======================
-// Routes
+// Routes (CORS এর পরে!)
 // =======================
 
 app.use("/api/auth", authRoutes);
 app.use("/api/rooms", roomRoutes);
 app.use("/api/bookings", bookingRoutes);
+app.use("/api/stats", statsRoutes); // ✅ CORS এর পরে
 
 // =======================
 // Error Handler

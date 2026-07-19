@@ -14,11 +14,16 @@ const AuthProvider = ({ children }) => {
     const fetchUser = async () => {
       try {
         const res = await api.get("/auth/me");
-
         setUser(res.data);
       } catch (error) {
-        console.log(error);
-        setUser(null);
+        // ✅ 401 error handle করুন (user not logged in)
+        if (error.response?.status === 401) {
+          console.log("User not logged in");
+          setUser(null);
+        } else {
+          console.error("Auth check failed:", error);
+          setUser(null);
+        }
       } finally {
         setLoading(false);
       }
@@ -31,17 +36,21 @@ const AuthProvider = ({ children }) => {
   // LOGIN
   // =========================
   const login = async (email, password) => {
-    const res = await api.post("/auth/login", {
-      email,
-      password,
-    });
+    try {
+      const res = await api.post("/auth/login", {
+        email,
+        password,
+      });
 
-    // Fetch logged in user
-    const userRes = await api.get("/auth/me");
+      // Fetch logged in user
+      const userRes = await api.get("/auth/me");
+      setUser(userRes.data);
 
-    setUser(userRes.data);
-
-    return res.data;
+      return res.data;
+    } catch (error) {
+      console.error("Login failed:", error);
+      throw error;
+    }
   };
 
   // =========================
@@ -50,12 +59,10 @@ const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       await api.post("/auth/logout");
-
       setUser(null);
-
       localStorage.removeItem("userEmail");
     } catch (error) {
-      console.log(error);
+      console.error("Logout failed:", error);
     }
   };
 
