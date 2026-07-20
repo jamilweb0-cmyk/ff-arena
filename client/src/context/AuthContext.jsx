@@ -6,141 +6,137 @@ import {
 
 import api from "../services/axios";
 
-
 export const AuthContext = createContext();
 
+const AuthProvider = ({ children }) => {
 
-const AuthProvider = ({children}) => {
+  const [user, setUser] = useState(null);
 
-
-  const [user,setUser] = useState(null);
-
-  const [loading,setLoading] = useState(true);
-
-
+  const [loading, setLoading] = useState(true);
 
   // ======================
-  // CHECK USER
+  // CHECK USER (Cookie Login)
   // ======================
 
-  useEffect(()=>{
+  useEffect(() => {
 
+    const checkUser = async () => {
 
-    const checkUser = async()=>{
+      try {
 
-
-      try{
-
-
-        const res =
-          await api.get("/auth/me");
-
+        const res = await api.get("/auth/me");
 
         setUser(res.data);
 
+        localStorage.setItem(
+          "userEmail",
+          res.data.email
+        );
 
-
-      }catch(error){
-
+      } catch (error) {
 
         setUser(null);
 
+        localStorage.removeItem("userEmail");
 
-      }finally{
-
+      } finally {
 
         setLoading(false);
 
-
       }
-
 
     };
 
-
     checkUser();
 
-
-  },[]);
-
-
-
-
+  }, []);
 
   // ======================
   // EMAIL LOGIN
   // ======================
 
-
-  const login = async(
+  const login = async (
     email,
     password
-  )=>{
+  ) => {
 
-
-    const res =
-      await api.post(
-        "/auth/login",
-        {
-          email,
-          password,
-        }
-      );
-
-
+    const res = await api.post(
+      "/auth/login",
+      {
+        email,
+        password,
+      }
+    );
 
     setUser(res.data.user);
 
-
+    localStorage.setItem(
+      "userEmail",
+      res.data.user.email
+    );
 
     return res.data;
 
-
   };
 
+  // ======================
+  // GOOGLE LOGIN
+  // ======================
 
+  const googleLogin = async (
+    firebaseUser
+  ) => {
 
+    const res = await api.post(
+      "/auth/google",
+      {
+        name:
+          firebaseUser.displayName,
 
+        email:
+          firebaseUser.email,
+
+        photo:
+          firebaseUser.photoURL,
+      }
+    );
+
+    setUser(res.data.user);
+
+    localStorage.setItem(
+      "userEmail",
+      res.data.user.email
+    );
+
+    return res.data;
+
+  };
 
   // ======================
   // LOGOUT
   // ======================
 
+  const logout = async () => {
 
-  const logout = async()=>{
-
-
-    try{
-
+    try {
 
       await api.post(
         "/auth/logout"
       );
 
-
-    }catch(error){
-
+    } catch (error) {
 
       console.log(error);
 
-
     }
 
-
-
     setUser(null);
-
 
     localStorage.removeItem(
       "userEmail"
     );
 
-
   };
-
-
-
-
 
   return (
 
@@ -154,6 +150,8 @@ const AuthProvider = ({children}) => {
 
         login,
 
+        googleLogin,
+
         logout,
 
         loading,
@@ -164,14 +162,10 @@ const AuthProvider = ({children}) => {
 
       {children}
 
-
     </AuthContext.Provider>
 
   );
 
-
 };
-
-
 
 export default AuthProvider;
