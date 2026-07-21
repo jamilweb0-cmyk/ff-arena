@@ -3,21 +3,12 @@ const Booking = require("../models/Booking");
 
 const router = express.Router();
 
-// ============================
-// LIVE TOTAL BOOKINGS COUNT
-// ============================
 router.get("/live-players", async (req, res) => {
   try {
     const count = await Booking.countDocuments();
-
-    res.send({
-      success: true,
-      count,
-    });
+    res.send({ success: true, count });
   } catch (error) {
-    res.status(500).send({
-      message: error.message,
-    });
+    res.status(500).send({ message: error.message });
   }
 });
 
