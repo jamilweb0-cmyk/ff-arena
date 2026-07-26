@@ -1,39 +1,37 @@
 import { createContext, useEffect, useState } from "react";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "../firebase/firebase.config";
 import api from "../services/axios";
 
-export const AuthContext = createContext(null);
+export const AuthContext = createContext();
 
-const AuthContextProvider = ({ children }) => {
+const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        // ✅ Firebase user থেকে backend user fetch করুন
-        try {
-          const res = await api.get("/auth/me");
-          setUser(res.data);
-          localStorage.setItem("userEmail", firebaseUser.email);
-        } catch (error) {
-          console.error("Failed to fetch user:", error);
+    const checkUser = async () => {
+      try {
+        const res = await api.get("/auth/me");
+        setUser(res.data);
+        localStorage.setItem("userEmail", res.data.email);
+      } catch (error) {
+        if (error.response?.status === 401) {
+          setUser(null);
+          localStorage.removeItem("userEmail");
+        } else {
+          console.error("Auth check failed:", error);
           setUser(null);
         }
-      } else {
-        setUser(null);
-        localStorage.removeItem("userEmail");
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
+    };
+    checkUser();
   }, []);
 
   const login = async (email, password) => {
     const res = await api.post("/auth/login", { email, password });
-    localStorage.setItem("userEmail", email);
+    setUser(res.data.user);
+    localStorage.setItem("userEmail", res.data.user.email);
     return res.data;
   };
 
@@ -43,29 +41,28 @@ const AuthContextProvider = ({ children }) => {
       email: firebaseUser.email,
       photo: firebaseUser.photoURL,
     });
-    localStorage.setItem("userEmail", firebaseUser.email);
+    setUser(res.data.user);
+    localStorage.setItem("userEmail", res.data.user.email);
     return res.data;
   };
 
   const logout = async () => {
-    await api.post("/auth/logout");
-    localStorage.removeItem("userEmail");
+    try {
+      await api.post("/auth/logout");
+    } catch (error) {
+      console.log(error);
+    }
     setUser(null);
-  };
-
-  const authInfo = {
-    user,
-    loading,
-    login,
-    googleLogin,
-    logout,
+    localStorage.removeItem("userEmail");
   };
 
   return (
-    <AuthContext.Provider value={authInfo}>
+    <AuthContext.Provider
+      value={{ user, setUser, login, googleLogin, logout, loading }}
+    >
       {children}
     </AuthContext.Provider>
   );
 };
 
-export default AuthContextProvider;
+export default AuthProvider;
