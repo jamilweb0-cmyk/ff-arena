@@ -1,68 +1,80 @@
 import { createContext, useEffect, useState } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../firebase/firebase.config";
 import api from "../services/axios";
 
-export const AuthContext = createContext();
+export const AuthContext = createContext(null);
 
-const AuthProvider = ({ children }) => {
+const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const checkUser = async () => {
-      try {
-        const res = await api.get("/auth/me");
-        setUser(res.data);
-        localStorage.setItem("userEmail", res.data.email);
-      } catch (error) {
-        if (error.response?.status === 401) {
-          setUser(null);
-          localStorage.removeItem("userEmail");
-        } else {
-          console.error("Auth check failed:", error);
-          setUser(null);
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        try {
+          // ✅ কুকি সহ ব্যাকএন্ড থেকে ইউজার ডেটা আনা হচ্ছে
+          const res = await api.get("/auth/me", { withCredentials: true });
+          setUser(res.data);
+        } catch (error) {
+          console.warn("Backend /me failed, using Firebase user as fallback", error);
+          // ✅ ব্যাকএন্ড কুকি যদি একটু লেট করে, তবুও ইউজারকে লগইন দেখানো হবে
+          setUser({
+            email: firebaseUser.email,
+            name: firebaseUser.displayName || "User",
+            photo: firebaseUser.photoURL || "",
+          });
         }
-      } finally {
-        setLoading(false);
+      } else {
+        setUser(null);
       }
-    };
-    checkUser();
+      setLoading(false); // ✅ ডেটা লোড শেষ হলেই লোডিং বন্ধ হবে
+    });
+
+    return () => unsubscribe();
   }, []);
 
   const login = async (email, password) => {
-    const res = await api.post("/auth/login", { email, password });
-    setUser(res.data.user);
-    localStorage.setItem("userEmail", res.data.user.email);
+    const res = await api.post("/auth/login", { email, password }, { withCredentials: true });
     return res.data;
   };
 
   const googleLogin = async (firebaseUser) => {
-    const res = await api.post("/auth/google", {
-      name: firebaseUser.displayName,
-      email: firebaseUser.email,
-      photo: firebaseUser.photoURL,
-    });
-    setUser(res.data.user);
-    localStorage.setItem("userEmail", res.data.user.email);
+    const res = await api.post(
+      "/auth/google",
+      {
+        name: firebaseUser.displayName,
+        email: firebaseUser.email,
+        photo: firebaseUser.photoURL,
+      },
+      { withCredentials: true }
+    );
     return res.data;
   };
 
   const logout = async () => {
     try {
-      await api.post("/auth/logout");
+      await api.post("/auth/logout", {}, { withCredentials: true });
     } catch (error) {
-      console.log(error);
+      console.error("Logout error:", error);
     }
     setUser(null);
-    localStorage.removeItem("userEmail");
+  };
+
+  const authInfo = {
+    user,
+    loading,
+    login,
+    googleLogin,
+    logout,
   };
 
   return (
-    <AuthContext.Provider
-      value={{ user, setUser, login, googleLogin, logout, loading }}
-    >
-      {children}
+    <AuthContext.Provider value={authInfo}>
+      {/* ✅ লোডিং শেষ না হওয়া পর্যন্ত children রেন্ডার হবে না (রিফ্রেশে লগআউট ভাব দেখাবে না) */}
+      {!loading && children}
     </AuthContext.Provider>
   );
 };
 
-export default AuthProvider;
+export default AuthContextProvider;
