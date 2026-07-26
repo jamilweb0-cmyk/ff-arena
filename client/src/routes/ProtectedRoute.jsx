@@ -1,5 +1,5 @@
-import { Navigate, useLocation } from "react-router-dom";
 import { useContext } from "react";
+import { Navigate, useLocation } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 
 const ProtectedRoute = ({ children }) => {
@@ -8,7 +8,7 @@ const ProtectedRoute = ({ children }) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex justify-center items-center bg-[#0f0a1a]">
+      <div className="min-h-screen flex justify-center items-center">
         <span className="loading loading-spinner loading-lg text-purple-500"></span>
       </div>
     );
