@@ -1,7 +1,7 @@
 import { useContext, useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
-import { getRedirectResult, GoogleAuthProvider, signInWithRedirect } from "firebase/auth";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth"; // ✅ শুধু Popup ইম্পোর্ট করা হয়েছে
 import { auth } from "../../firebase/firebase.config";
 import toast from "react-hot-toast";
 
@@ -21,46 +21,39 @@ const Login = () => {
     }
   }, [user, loading, navigate, from]);
 
-  // ✅ ২. রিডাইরেক্ট লগইন কমপ্লিট হলে রেজাল্ট হ্যান্ডেল করো
-  useEffect(() => {
-    const handleRedirectResult = async () => {
-      try {
-        const result = await getRedirectResult(auth);
-        if (result?.user) {
-          setIsProcessing(true);
-          await googleLogin({
-            name: result.user.displayName,
-            email: result.user.email,
-            photo: result.user.photoURL,
-          });
-          toast.success("Google Login Successful!");
-          navigate(from, { replace: true });
-        }
-      } catch (error) {
-        console.error("Google Login Error:", error);
-        toast.error("Google Login Failed: " + (error.message || "Please try again"));
-      } finally {
-        setIsProcessing(false);
-      }
-    };
-
-    handleRedirectResult();
-  }, [navigate, from, googleLogin]);
-
-  // ✅ ৩. Google Login বাটন ক্লিক হ্যান্ডলার
+  // ✅ ২. Google Login বাটন ক্লিক হ্যান্ডলার (Popup ব্যবহার করা হয়েছে)
   const handleGoogleLogin = async () => {
     try {
       setIsProcessing(true);
       const provider = new GoogleAuthProvider();
-      await signInWithRedirect(auth, provider);
+      
+      // ✅ Redirect এর বদলে Popup ব্যবহার করায় init.json 404 এরর আসবে না
+      const result = await signInWithPopup(auth, provider);
+      
+      if (result?.user) {
+        await googleLogin({
+          name: result.user.displayName,
+          email: result.user.email,
+          photo: result.user.photoURL,
+        });
+        toast.success("Google Login Successful!");
+        navigate(from, { replace: true });
+      }
     } catch (error) {
       console.error("Google Login Error:", error);
-      toast.error("Google Login Failed: " + error.message);
+      
+      // ✅ ইউজার যদি পপআপ বন্ধ করে দেয়, সেটার জন্য আলাদা মেসেজ
+      if (error.code === 'auth/popup-closed-by-user') {
+        toast.error("Login cancelled by user.");
+      } else {
+        toast.error("Google Login Failed: " + (error.message || "Please try again"));
+      }
+    } finally {
       setIsProcessing(false);
     }
   };
 
-  // ✅ ৪. Email/Password Login হ্যান্ডলার
+  // ✅ ৩. Email/Password Login হ্যান্ডলার
   const handleEmailLogin = async (e) => {
     e.preventDefault();
     try {
