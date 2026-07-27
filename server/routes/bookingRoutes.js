@@ -8,20 +8,20 @@ const router = express.Router();
 router.post("/", verifyToken, async (req, res) => {
   try {
     const { roomId, user_email, room_name, booking_date } = req.body;
-    if (user_email !== req.user.email) return res.status(403).send({ message: "Unauthorized User" });
-    if (!roomId || !user_email) return res.status(400).send({ message: "Missing required fields" });
+    if (user_email !== req.user.email) return res.status(403).json({ message: "Unauthorized User" });
+    if (!roomId || !user_email) return res.status(400).json({ message: "Missing required fields" });
 
     const bookedCount = await Booking.countDocuments({ roomId });
-    if (bookedCount >= 20) return res.status(400).send({ message: "Room is Fully Booked" });
+    if (bookedCount >= 20) return res.status(400).json({ message: "Room is Fully Booked" });
 
-    const existingBooking = await Booking.findOne({ roomId, user_email });
-    if (existingBooking) return res.status(400).send({ message: "You already booked this room" });
+    const existingBooking = await Booking.findOne({ roomId, user_email: req.user.email });
+    if (existingBooking) return res.status(400).json({ message: "You already booked this room" });
 
     const booking = new Booking({ roomId, room_name, booking_date, user_email: req.user.email });
     await booking.save();
-    res.status(201).send({ message: "Booking Successful" });
+    res.status(201).json({ message: "Booking Successful", data: booking });
   } catch (error) {
-    res.status(500).send({ message: error.message });
+    res.status(500).json({ message: error.message });
   }
 });
 
@@ -30,9 +30,9 @@ router.get("/check", async (req, res) => {
   try {
     const { roomId, email } = req.query;
     const booking = await Booking.findOne({ roomId, user_email: email });
-    res.send({ alreadyBooked: !!booking });
+    res.json({ alreadyBooked: !!booking });
   } catch (error) {
-    res.status(500).send({ message: error.message });
+    res.status(500).json({ message: error.message });
   }
 });
 
@@ -40,11 +40,11 @@ router.get("/check", async (req, res) => {
 router.get("/", async (req, res) => {
   try {
     const { email } = req.query;
-    if (!email) return res.status(400).send({ message: "Email is required" });
+    if (!email) return res.status(400).json({ message: "Email is required" });
     const bookings = await Booking.find({ user_email: email });
-    res.send(bookings);
+    res.json(bookings);
   } catch (error) {
-    res.status(500).send({ message: error.message });
+    res.status(500).json({ message: error.message });
   }
 });
 
@@ -52,27 +52,27 @@ router.get("/", async (req, res) => {
 router.patch("/:id", verifyToken, async (req, res) => {
   try {
     const booking = await Booking.findById(req.params.id);
-    if (!booking) return res.status(404).send({ message: "Booking not found" });
-    if (booking.user_email !== req.user.email) return res.status(403).send({ message: "Forbidden Access" });
+    if (!booking) return res.status(404).json({ message: "Booking not found" });
+    if (booking.user_email !== req.user.email) return res.status(403).json({ message: "Forbidden Access" });
 
     const updated = await Booking.findByIdAndUpdate(req.params.id, { booking_date: req.body.booking_date }, { new: true });
-    res.send({ message: "Booking Updated Successfully", updated });
+    res.json({ message: "Booking Updated Successfully", data: updated });
   } catch (error) {
-    res.status(500).send({ message: error.message });
+    res.status(500).json({ message: error.message });
   }
 });
 
-// DELETE BOOKING
+// DELETE BOOKING (✅ এখানেই ভুলটি ছিল, এখন ঠিক করা হলো)
 router.delete("/:id", verifyToken, async (req, res) => {
   try {
     const booking = await Booking.findById(req.params.id);
-    if (!booking) return res.status(404).send({ message: "Booking not found" });
-    if (booking.user_email !== req.user.email) return res.status(403).send({ message: "Forbidden Access" });
+    if (!booking) return res.status(404).json({ message: "Booking not found" });
+    if (booking.user_email !== req.user.email) return res.status(403).json({ message: "Forbidden Access" });
 
     await Booking.findByIdAndDelete(req.params.id);
-    res.send({ message: "Booking Cancelled" });
+    res.json({ message: "Booking Cancelled" });
   } catch (error) {
-    res.status(500).send({ message: error.message });
+    res.status(500).json({ message: error.message }); // ✅ "server-routes-500" মুছে "500" করা হলো
   }
 });
 
