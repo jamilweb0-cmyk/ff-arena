@@ -13,6 +13,7 @@ const AuthContextProvider = ({ children }) => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         try {
+          // ✅ ব্যাকএন্ড থেকে ইউজার ডেটা ফেচ করা (Token অটোমেটিক হেডারে যাবে)
           const res = await api.get("/auth/me");
           if (res.data) {
             setUser(res.data);
@@ -22,7 +23,7 @@ const AuthContextProvider = ({ children }) => {
           }
         } catch (error) {
           console.error("Failed to fetch user from backend:", error);
-          // Fallback: যদি ব্যাকএন্ড ফেইল করে, তবুও লোকাল স্টোরেজ থেকে ইউজার দেখাও
+          // ✅ ফলব্যাক: যদি ব্যাকএন্ড ফেইল করে, লোকাল স্টোরেজ থেকে ডেটা দেখাও
           const savedEmail = localStorage.getItem("userEmail");
           if (savedEmail) {
             setUser({
@@ -43,7 +44,7 @@ const AuthContextProvider = ({ children }) => {
         localStorage.removeItem("userEmail");
         localStorage.removeItem("userName");
         localStorage.removeItem("userPhoto");
-        localStorage.removeItem("token"); // ✅ টোকেনও মুছে ফেলুন
+        localStorage.removeItem("token");
       }
       setLoading(false);
     });
@@ -53,9 +54,7 @@ const AuthContextProvider = ({ children }) => {
 
   const login = async (email, password) => {
     const res = await api.post("/auth/login", { email, password });
-    if (res.data.token) {
-      localStorage.setItem("token", res.data.token); // ✅ টোকেন সেভ করুন
-    }
+    if (res.data.token) localStorage.setItem("token", res.data.token);
     if (res.data.user) {
       localStorage.setItem("userEmail", res.data.user.email);
       localStorage.setItem("userName", res.data.user.name || "");
@@ -70,14 +69,10 @@ const AuthContextProvider = ({ children }) => {
       email: userData.email,
       photo: userData.photo,
     });
-    
-    if (res.data.token) {
-      localStorage.setItem("token", res.data.token); // ✅ টোকেন সেভ করুন
-    }
+    if (res.data.token) localStorage.setItem("token", res.data.token);
     localStorage.setItem("userEmail", userData.email);
     localStorage.setItem("userName", userData.name || "");
     localStorage.setItem("userPhoto", userData.photo || "");
-    
     return res.data;
   };
 
@@ -91,16 +86,10 @@ const AuthContextProvider = ({ children }) => {
     localStorage.removeItem("userEmail");
     localStorage.removeItem("userName");
     localStorage.removeItem("userPhoto");
-    localStorage.removeItem("token"); // ✅ টোকেন মুছে ফেলুন
+    localStorage.removeItem("token");
   };
 
-  const authInfo = {
-    user,
-    loading,
-    login,
-    googleLogin,
-    logout,
-  };
+  const authInfo = { user, loading, login, googleLogin, logout };
 
   return (
     <AuthContext.Provider value={authInfo}>

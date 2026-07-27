@@ -13,11 +13,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-// ✅ COOP warnings এড়াতে Firebase config
-auth.settings = {
-  appVerificationDisabledForTesting: false,
-};
-
+// ✅ মোবাইল ও ডেস্কটপে রিফ্রেশ দিলেও লগইন থাকার জন্য Local Persistence
 setPersistence(auth, browserLocalPersistence).catch((error) => {
   console.error("Auth persistence error:", error);
 });
