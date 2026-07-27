@@ -13,27 +13,22 @@ const AuthContextProvider = ({ children }) => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         try {
-          // ✅ Backend থেকে user data fetch করুন
-          const res = await api.get("/auth/me", { 
-            withCredentials: true,
-          });
-          
+          const res = await api.get("/auth/me");
           if (res.data) {
             setUser(res.data);
-            // ✅ localStorage-এ save করুন
             localStorage.setItem("userEmail", firebaseUser.email);
             localStorage.setItem("userName", res.data.name || firebaseUser.displayName || "");
             localStorage.setItem("userPhoto", res.data.photo || firebaseUser.photoURL || "");
           }
         } catch (error) {
           console.error("Failed to fetch user from backend:", error);
-          // ✅ Fallback: localStorage থেকে data নিন
+          // Fallback: যদি ব্যাকএন্ড ফেইল করে, তবুও লোকাল স্টোরেজ থেকে ইউজার দেখাও
           const savedEmail = localStorage.getItem("userEmail");
           if (savedEmail) {
             setUser({
               email: savedEmail,
-              name: localStorage.getItem("userName") || firebaseUser.displayName || "User",
-              photo: localStorage.getItem("userPhoto") || firebaseUser.photoURL || "",
+              name: localStorage.getItem("userName") || "User",
+              photo: localStorage.getItem("userPhoto") || "",
             });
           } else {
             setUser({
@@ -41,7 +36,6 @@ const AuthContextProvider = ({ children }) => {
               name: firebaseUser.displayName || "User",
               photo: firebaseUser.photoURL || "",
             });
-            localStorage.setItem("userEmail", firebaseUser.email);
           }
         }
       } else {
@@ -49,6 +43,7 @@ const AuthContextProvider = ({ children }) => {
         localStorage.removeItem("userEmail");
         localStorage.removeItem("userName");
         localStorage.removeItem("userPhoto");
+        localStorage.removeItem("token"); // ✅ টোকেনও মুছে ফেলুন
       }
       setLoading(false);
     });
@@ -57,49 +52,38 @@ const AuthContextProvider = ({ children }) => {
   }, []);
 
   const login = async (email, password) => {
-    const res = await api.post("/auth/login", 
-      { email, password }, 
-      { withCredentials: true }
-    );
-    
+    const res = await api.post("/auth/login", { email, password });
+    if (res.data.token) {
+      localStorage.setItem("token", res.data.token); // ✅ টোকেন সেভ করুন
+    }
     if (res.data.user) {
-      localStorage.setItem("userEmail", email);
+      localStorage.setItem("userEmail", res.data.user.email);
       localStorage.setItem("userName", res.data.user.name || "");
       localStorage.setItem("userPhoto", res.data.user.photo || "");
     }
-    
     return res.data;
   };
 
   const googleLogin = async (userData) => {
-    try {
-      const res = await api.post("/auth/google", 
-        {
-          name: userData.name,
-          email: userData.email,
-          photo: userData.photo,
-        },
-        { withCredentials: true }
-      );
-      
-      localStorage.setItem("userEmail", userData.email);
-      localStorage.setItem("userName", userData.name || "");
-      localStorage.setItem("userPhoto", userData.photo || "");
-      
-      return res.data;
-    } catch (error) {
-      console.error("Google Login Backend Error:", error);
-      // ✅ Backend fail হলেও localStorage-এ save করুন
-      localStorage.setItem("userEmail", userData.email);
-      localStorage.setItem("userName", userData.name || "");
-      localStorage.setItem("userPhoto", userData.photo || "");
-      throw error;
+    const res = await api.post("/auth/google", {
+      name: userData.name,
+      email: userData.email,
+      photo: userData.photo,
+    });
+    
+    if (res.data.token) {
+      localStorage.setItem("token", res.data.token); // ✅ টোকেন সেভ করুন
     }
+    localStorage.setItem("userEmail", userData.email);
+    localStorage.setItem("userName", userData.name || "");
+    localStorage.setItem("userPhoto", userData.photo || "");
+    
+    return res.data;
   };
 
   const logout = async () => {
     try {
-      await api.post("/auth/logout", {}, { withCredentials: true });
+      await api.post("/auth/logout");
     } catch (error) {
       console.error("Logout error:", error);
     }
@@ -107,6 +91,7 @@ const AuthContextProvider = ({ children }) => {
     localStorage.removeItem("userEmail");
     localStorage.removeItem("userName");
     localStorage.removeItem("userPhoto");
+    localStorage.removeItem("token"); // ✅ টোকেন মুছে ফেলুন
   };
 
   const authInfo = {

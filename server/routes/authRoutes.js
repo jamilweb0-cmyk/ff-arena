@@ -14,14 +14,14 @@ router.post("/register", async (req, res) => {
   try {
     const { name, email, password } = req.body;
     const exists = await User.findOne({ email });
-    if (exists) return res.status(400).send({ message: "User already exists" });
+    if (exists) return res.status(400).json({ message: "User already exists" });
 
     const hash = await bcrypt.hash(password, 10);
     const user = new User({ name, email, password: hash, provider: "email" });
     await user.save();
-    res.status(201).send({ message: "Registration Successful" });
+    res.status(201).json({ message: "Registration Successful" });
   } catch (error) {
-    res.status(500).send({ message: error.message });
+    res.status(500).json({ message: error.message });
   }
 });
 
@@ -30,13 +30,15 @@ router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
-    if (!user) return res.status(404).send({ message: "User not found" });
-    if (user.provider === "google") return res.status(400).send({ message: "Please login with Google" });
+    if (!user) return res.status(404).json({ message: "User not found" });
+    if (user.provider === "google") return res.status(400).json({ message: "Please login with Google" });
 
     const match = await bcrypt.compare(password, user.password);
-    if (!match) return res.status(400).send({ message: "Wrong password" });
+    if (!match) return res.status(400).json({ message: "Wrong password" });
 
     const token = createToken(user.email);
+    
+    // Cookie এবং Response দুটোতেই Token পাঠানো হচ্ছে (Double Safety)
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -45,9 +47,13 @@ router.post("/login", async (req, res) => {
       path: "/",
     });
 
-    res.send({ message: "Login Successful", token, user: { _id: user._id, name: user.name, email: user.email, photo: user.photo } });
+    res.json({ 
+      message: "Login Successful", 
+      token, 
+      user: { _id: user._id, name: user.name, email: user.email, photo: user.photo } 
+    });
   } catch (error) {
-    res.status(500).send({ message: error.message });
+    res.status(500).json({ message: error.message });
   }
 });
 
@@ -55,7 +61,7 @@ router.post("/login", async (req, res) => {
 router.post("/google", async (req, res) => {
   try {
     const { name, email, photo } = req.body;
-    if (!email) return res.status(400).send({ message: "Email Required" });
+    if (!email) return res.status(400).json({ message: "Email Required" });
 
     let user = await User.findOne({ email });
     if (!user) {
@@ -64,6 +70,7 @@ router.post("/google", async (req, res) => {
     }
 
     const token = createToken(user.email);
+
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -72,9 +79,9 @@ router.post("/google", async (req, res) => {
       path: "/",
     });
 
-    res.send({ message: "Google Login Successful", token, user });
+    res.json({ message: "Google Login Successful", token, user });
   } catch (error) {
-    res.status(500).send({ message: error.message });
+    res.status(500).json({ message: error.message });
   }
 });
 
@@ -82,10 +89,10 @@ router.post("/google", async (req, res) => {
 router.get("/me", verifyToken, async (req, res) => {
   try {
     const user = await User.findOne({ email: req.user.email }).select("-password");
-    if (!user) return res.status(404).send({ message: "User not found" });
-    res.send(user);
+    if (!user) return res.status(404).json({ message: "User not found" });
+    res.json(user);
   } catch (error) {
-    res.status(500).send({ message: error.message });
+    res.status(500).json({ message: error.message });
   }
 });
 
@@ -97,7 +104,7 @@ router.post("/logout", (req, res) => {
     sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     path: "/",
   });
-  res.send({ message: "Logout Successful" });
+  res.json({ message: "Logout Successful" });
 });
 
 module.exports = router;
