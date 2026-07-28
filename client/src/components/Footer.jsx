@@ -36,14 +36,14 @@ const Footer = () => {
           <div>
             <h2 className="text-xl font-bold text-white mb-5">Contact</h2>
             <div className="space-y-4 text-gray-400">
-              <div className="flex items-center gap-3"><FaEnvelope className="text-purple-400" /><span>yourmail@gmail.com</span></div>
+              <div className="flex items-center gap-3">jamilweb0@gmail.com<FaEnvelope className="text-purple-400" /><span>yourmail@gmail.com</span></div>
               <div className="flex items-center gap-3"><FaGamepad className="text-purple-400" /><span>FF Arena Community</span></div>
             </div>
           </div>
         </div>
         <div className="border-t border-purple-900 mt-12 pt-8 text-center">
           <p className="text-gray-500">© 2026 FF Arena. All Rights Reserved.</p>
-          <p className="mt-2 text-purple-400">Developed with ❤️ by Jamil Ahmed</p>
+          <p className="mt-2 text-purple-400">Developed by Jamil Ahmed</p>
         </div>
       </div>
     </footer>
