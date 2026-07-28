@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom"; // ✅ যোগ করা হয়েছে
 import toast from "react-hot-toast";
 import api from "../../services/axios";
 
 const AddRoom = () => {
+  const navigate = useNavigate(); // ✅ নেভিগেট হুক
   const [imagePreview, setImagePreview] = useState("");
   const [imageError, setImageError] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -24,9 +26,10 @@ const AddRoom = () => {
     try {
       await api.post("/rooms", roomData);
       toast.success("Room Added Successfully");
-      form.reset();
-      setImagePreview("");
-      setImageError(false);
+      
+      // ✅ সফল হলে My Rooms পেজে রিডাইরেক্ট করো
+      navigate("/my-rooms");
+      
     } catch (error) {
       console.log(error);
       toast.error(error.response?.data?.message || "Failed to Add Room");
@@ -38,14 +41,14 @@ const AddRoom = () => {
   const handleImageChange = (e) => {
     const url = e.target.value;
     setImagePreview(url);
-    setImageError(false); // নতুন URL দিলে এরর রিসেট
+    setImageError(false);
   };
 
   const handleImageError = () => {
     setImageError(true);
   };
 
-  // ✅ প্রি-সেট ইমেজ অপশন (যদি ইউজার URL না পায়)
+  // প্রি-সেট ইমেজ অপশন
   const presetImages = [
     "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600",
     "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=600",
@@ -120,7 +123,6 @@ const AddRoom = () => {
             onChange={handleImageChange}
             required
           />
-          {/* ✅ হেল্প টেক্সট */}
           <p className="text-xs text-gray-400 mt-2">
             💡 টিপস: সরাসরি ইমেজ URL দিন (.jpg, .png, .webp দিয়ে শেষ হওয়া)। 
             ওয়েবসাইটের URL কাজ করবে না।
@@ -130,13 +132,13 @@ const AddRoom = () => {
           </p>
         </div>
 
-        {/* ✅ ইমেজ প্রিভিউ */}
+        {/* ইমেজ প্রিভিউ */}
         {imagePreview && (
           <div className="mt-2">
             {imageError ? (
               <div className="w-full h-56 bg-gray-800 rounded border border-red-500 flex items-center justify-center">
                 <div className="text-center p-4">
-                  <p className="text-red-400 font-semibold mb-2"> ইমেজ লোড হয়নি</p>
+                  <p className="text-red-400 font-semibold mb-2">❌ ইমেজ লোড হয়নি</p>
                   <p className="text-gray-400 text-xs">
                     URL টি সরাসরি ইমেজ ফাইল নয়। অন্য URL চেষ্টা করুন।
                   </p>
@@ -153,7 +155,7 @@ const AddRoom = () => {
           </div>
         )}
 
-        {/* ✅ প্রি-সেট ইমেজ অপশন */}
+        {/* প্রি-সেট ইমেজ অপশন */}
         <div>
           <p className="text-sm text-gray-400 mb-2">
             অথবা নিচের যেকোনো একটি ইমেজ ব্যবহার করুন:

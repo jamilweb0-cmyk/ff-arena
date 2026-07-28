@@ -36,7 +36,7 @@ const Footer = () => {
           <div>
             <h2 className="text-xl font-bold text-white mb-5">Contact</h2>
             <div className="space-y-4 text-gray-400">
-              <div className="flex items-center gap-3">jamilweb0@gmail.com<FaEnvelope className="text-purple-400" /><span>yourmail@gmail.com</span></div>
+              <div className="flex items-center gap-3"><FaEnvelope className="text-purple-400" /><span>jamilweb0@gmail.com</span></div>
               <div className="flex items-center gap-3"><FaGamepad className="text-purple-400" /><span>FF Arena Community</span></div>
             </div>
           </div>
