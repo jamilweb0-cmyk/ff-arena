@@ -1,11 +1,45 @@
-import { createContext, useState } from "react";
+import { createContext, useState, useEffect } from "react";
 import api from "../services/axios";
 
 export const AuthContext = createContext(null);
 
 const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); // ✅ শুরুতে loading true
+
+  // ✅ অ্যাপ লোড হওয়ার সময় localStorage থেকে token চেক করুন
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = localStorage.getItem("token");
+      
+      if (token) {
+        try {
+          // ✅ Token থাকলে backend থেকে user data fetch করুন
+          const res = await api.get("/auth/me");
+          if (res.data) {
+            setUser(res.data);
+            // localStorage থেকেও data সেট করুন
+            localStorage.setItem("userEmail", res.data.email);
+            localStorage.setItem("userName", res.data.name || "");
+            localStorage.setItem("userPhoto", res.data.photo || "");
+          }
+        } catch (error) {
+          console.error("Token validation failed:", error);
+          // ✅ Token invalid হলে মুছে ফেলুন
+          localStorage.removeItem("token");
+          localStorage.removeItem("userEmail");
+          localStorage.removeItem("userName");
+          localStorage.removeItem("userPhoto");
+          setUser(null);
+        }
+      } else {
+        setUser(null);
+      }
+      setLoading(false); // ✅ loading false করুন
+    };
+
+    checkAuth();
+  }, []);
 
   const login = async (email, password) => {
     setLoading(true);
