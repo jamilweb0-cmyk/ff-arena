@@ -2,8 +2,10 @@ import { useState } from "react";
 import api from "../../services/axios";
 import toast from "react-hot-toast";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import useScrollToTop from "../../hooks/useScrollToTop";
 
 const Register = () => {
+  useScrollToTop();
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
 

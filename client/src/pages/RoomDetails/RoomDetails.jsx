@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import api from "../../services/axios";
 import toast from "react-hot-toast";
 import { motion } from "framer-motion";
+import useScrollToTop from "../../hooks/useScrollToTop";
 
 const RoomDetails = () => {
   const { id } = useParams();
@@ -13,6 +14,8 @@ const RoomDetails = () => {
   const [relatedRooms, setRelatedRooms] = useState([]);
 
   const userEmail = localStorage.getItem("userEmail");
+
+  useScrollToTop();
 
   useEffect(() => {
     const fetchRoom = async () => {

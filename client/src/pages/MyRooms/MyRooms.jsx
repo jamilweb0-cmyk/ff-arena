@@ -3,10 +3,13 @@ import api from "../../services/axios";
 import Swal from "sweetalert2";
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
+import useScrollToTop from "../../hooks/useScrollToTop";
 
 const MyRooms = () => {
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  useScrollToTop();
 
   useEffect(() => {
     const fetchRooms = async () => {

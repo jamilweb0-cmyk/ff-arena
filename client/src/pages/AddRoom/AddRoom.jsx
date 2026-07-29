@@ -2,8 +2,10 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom"; // ✅ যোগ করা হয়েছে
 import toast from "react-hot-toast";
 import api from "../../services/axios";
+import useScrollToTop from "../../hooks/useScrollToTop";
 
 const AddRoom = () => {
+  useScrollToTop();
   const navigate = useNavigate(); // ✅ নেভিগেট হুক
   const [imagePreview, setImagePreview] = useState("");
   const [imageError, setImageError] = useState(false);

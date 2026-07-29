@@ -4,8 +4,10 @@ import { AuthContext } from "../../context/AuthContext";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import toast from "react-hot-toast";
+import useScrollToTop from "../../hooks/useScrollToTop";
 
 const Login = () => {
+  useScrollToTop();
   const { login, googleLogin, user, loading } = useContext(AuthContext);
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [isProcessing, setIsProcessing] = useState(false);

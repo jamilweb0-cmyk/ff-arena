@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../../services/axios";
 import { Link } from "react-router-dom";
+import useScrollToTop from "../../hooks/useScrollToTop";
 
 const Rooms = () => {
   const [rooms, setRooms] = useState([]);
@@ -9,6 +10,8 @@ const Rooms = () => {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [totalPages, setTotalPages] = useState(1);
+
+  useScrollToTop();
 
   useEffect(() => {
     const fetchRooms = async () => {

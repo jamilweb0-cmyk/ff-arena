@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import api from "../../services/axios";
 import Swal from "sweetalert2";
 import toast from "react-hot-toast";
+import useScrollToTop from "../../hooks/useScrollToTop";
 
 const MyBookings = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+  useScrollToTop();
 
   useEffect(() => {
     const fetchBookings = async () => {

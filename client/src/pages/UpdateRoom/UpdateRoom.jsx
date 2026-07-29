@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../../services/axios";
 import toast from "react-hot-toast";
+import useScrollToTop from "../../hooks/useScrollToTop";
 
 const UpdateRoom = () => {
+  useScrollToTop();
   const { id } = useParams();
   const navigate = useNavigate(); // ✅ নেভিগেট হুক
   const [room, setRoom] = useState(null);
