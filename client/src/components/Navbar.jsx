@@ -112,13 +112,22 @@ const Navbar = () => {
                 </div>
               </NavLink>
               
-              {/* User Profile */}
-              <div className="flex items-center gap-3 bg-[#1b1330] px-4 py-2 rounded-full border border-purple-700/50">
-                <div className="w-9 h-9 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center font-bold text-white text-sm">
-                  {user?.email?.charAt(0)?.toUpperCase()}
-                </div>
+              {/* ✅ User Profile with Photo */}
+              <div className="flex items-center gap-3 bg-[#1b1330] px-3 py-1.5 rounded-full border border-purple-700/50">
+                {/* প্রোফাইল পিকচার বা ফলব্যাক ইনিশিয়াল */}
+                {user?.photo ? (
+                  <img 
+                    src={user.photo} 
+                    alt={user?.name || "User"}
+                    className="w-9 h-9 rounded-full object-cover border-2 border-purple-500"
+                  />
+                ) : (
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center font-bold text-white text-sm">
+                    {user?.email?.charAt(0)?.toUpperCase()}
+                  </div>
+                )}
                 <span className="hidden lg:block text-purple-300 text-sm max-w-[150px] truncate">
-                  {user?.email}
+                  {user?.name || user?.email}
                 </span>
               </div>
               
@@ -163,9 +172,18 @@ const Navbar = () => {
             {/* User Info (if logged in) */}
             {user && (
               <div className="flex items-center justify-center gap-3 pb-6 mb-6 border-b border-purple-900/50">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center font-bold text-white text-lg">
-                  {user?.email?.charAt(0)?.toUpperCase()}
-                </div>
+                {/* ✅ প্রোফাইল পিকচার বা ফলব্যাক */}
+                {user?.photo ? (
+                  <img 
+                    src={user.photo} 
+                    alt={user?.name || "User"}
+                    className="w-16 h-16 rounded-full object-cover border-2 border-purple-500"
+                  />
+                ) : (
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center font-bold text-white text-2xl">
+                    {user?.email?.charAt(0)?.toUpperCase()}
+                  </div>
+                )}
                 <div className="text-center">
                   <p className="text-white font-semibold text-sm">
                     {user?.name || "User"}
