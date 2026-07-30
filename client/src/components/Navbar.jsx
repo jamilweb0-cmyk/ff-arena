@@ -11,8 +11,7 @@ import {
   FaSignInAlt, 
   FaSignOutAlt, 
   FaBars, 
-  FaTimes,
-  FaUserCircle
+  FaTimes
 } from "react-icons/fa";
 
 const Navbar = () => {
@@ -113,19 +112,24 @@ const Navbar = () => {
               </NavLink>
               
               {/* ✅ User Profile with Photo */}
-              <div className="flex items-center gap-3 bg-[#1b1330] px-3 py-1.5 rounded-full border border-purple-700/50">
-                {/* প্রোফাইল পিকচার বা ফলব্যাক ইনিশিয়াল */}
-                {user?.photo ? (
-                  <img 
-                    src={user.photo} 
-                    alt={user?.name || "User"}
-                    className="w-9 h-9 rounded-full object-cover border-2 border-purple-500"
-                  />
-                ) : (
-                  <div className="w-9 h-9 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center font-bold text-white text-sm">
-                    {user?.email?.charAt(0)?.toUpperCase()}
-                  </div>
-                )}
+              <div className="flex items-center gap-3 bg-[#1b1330] px-4 py-2 rounded-full border border-purple-700/50">
+                <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-purple-500/50">
+                  {user?.photo ? (
+                    <img 
+                      src={user.photo} 
+                      alt="Profile" 
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.parentElement.innerHTML = `<div class="w-full h-full rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center font-bold text-white text-sm">${user?.email?.charAt(0)?.toUpperCase()}</div>`;
+                      }}
+                    />
+                  ) : (
+                    <div className="w-full h-full rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center font-bold text-white text-sm">
+                      {user?.email?.charAt(0)?.toUpperCase()}
+                    </div>
+                  )}
+                </div>
                 <span className="hidden lg:block text-purple-300 text-sm max-w-[150px] truncate">
                   {user?.name || user?.email}
                 </span>
@@ -169,21 +173,26 @@ const Navbar = () => {
       {open && (
         <div className="md:hidden bg-[#120c1f]/95 backdrop-blur-lg border-t border-purple-900/50 animate-slideDown">
           <div className="w-full py-6 flex flex-col">
-            {/* User Info (if logged in) */}
+            {/* ✅ User Info with Photo (if logged in) */}
             {user && (
               <div className="flex items-center justify-center gap-3 pb-6 mb-6 border-b border-purple-900/50">
-                {/* ✅ প্রোফাইল পিকচার বা ফলব্যাক */}
-                {user?.photo ? (
-                  <img 
-                    src={user.photo} 
-                    alt={user?.name || "User"}
-                    className="w-16 h-16 rounded-full object-cover border-2 border-purple-500"
-                  />
-                ) : (
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center font-bold text-white text-2xl">
-                    {user?.email?.charAt(0)?.toUpperCase()}
-                  </div>
-                )}
+                <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-purple-500">
+                  {user?.photo ? (
+                    <img 
+                      src={user.photo} 
+                      alt="Profile" 
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.parentElement.innerHTML = `<div class="w-full h-full rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center font-bold text-white text-2xl">${user?.email?.charAt(0)?.toUpperCase()}</div>`;
+                      }}
+                    />
+                  ) : (
+                    <div className="w-full h-full rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center font-bold text-white text-2xl">
+                      {user?.email?.charAt(0)?.toUpperCase()}
+                    </div>
+                  )}
+                </div>
                 <div className="text-center">
                   <p className="text-white font-semibold text-sm">
                     {user?.name || "User"}
