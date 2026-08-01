@@ -3,12 +3,14 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
+import { FaEye, FaEyeSlash } from "react-icons/fa"; // ✅ Eye icons
 import toast from "react-hot-toast";
 
 const Login = () => {
   const { login, googleLogin, user, loading } = useContext(AuthContext);
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // ✅ Password visibility state
   
   const navigate = useNavigate();
   const location = useLocation();
@@ -22,15 +24,14 @@ const Login = () => {
       // ✅ Google Token decode করুন
       const decoded = jwtDecode(credentialResponse.credential);
       
-      // ✅ Debugging - কনসোলে দেখুন
       console.log("Google Profile Photo:", decoded.picture);
       console.log("Google Profile Data:", decoded);
       
-      // ✅ Backend-এ পাঠান (photo key হলো 'picture' Google থেকে)
+      // ✅ Backend-এ পাঠান
       await googleLogin({
         name: decoded.name,
         email: decoded.email,
-        photo: decoded.picture, // ✅ এটি িক আছে
+        photo: decoded.picture,
         googleId: decoded.sub,
       });
       
@@ -102,15 +103,25 @@ const Login = () => {
               />
             </div>
 
-            <div>
+            {/* ✅ Password Field with Eye Toggle */}
+            <div className="relative">
               <input
-                type="password"
+                type={showPassword ? "text" : "password"} // ✅ Dynamic type
                 placeholder="Password"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-purple-500 text-white placeholder-gray-500"
+                className="w-full px-4 py-3 pr-12 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-purple-500 text-white placeholder-gray-500"
                 required
               />
+              {/* ✅ Eye Icon Button */}
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-purple-400 transition-colors focus:outline-none"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <FaEyeSlash size={20} /> : <FaEye size={20} />}
+              </button>
             </div>
 
             <button
