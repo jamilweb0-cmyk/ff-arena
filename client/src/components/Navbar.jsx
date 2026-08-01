@@ -27,10 +27,8 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // ✅ useEffect to ensure photo is loaded
   useEffect(() => {
     if (user && !user.photo) {
-      // ✅ যদি user.photo না থাকে, localStorage থেকে নিন
       const savedPhoto = localStorage.getItem("userPhoto");
       if (savedPhoto) {
         setUser({ ...user, photo: savedPhoto });
@@ -122,7 +120,7 @@ const Navbar = () => {
                 </div>
               </NavLink>
               
-              {/* ✅ User Profile with Photo */}
+              {/* User Profile */}
               <div className="flex items-center gap-3 bg-[#1b1330] px-4 py-2 rounded-full border border-purple-700/50">
                 <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-purple-500/50">
                   {user?.photo ? (
@@ -131,7 +129,6 @@ const Navbar = () => {
                       alt="Profile" 
                       className="w-full h-full object-cover"
                       onError={(e) => {
-                        console.error("❌ Image failed to load:", user.photo);
                         e.target.style.display = 'none';
                         e.target.parentElement.innerHTML = `<div class="w-full h-full rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center font-bold text-white text-sm">${user?.email?.charAt(0)?.toUpperCase()}</div>`;
                       }}
@@ -172,20 +169,45 @@ const Navbar = () => {
           )}
         </div>
 
-        {/* MOBILE MENU BUTTON */}
-        <button 
-          onClick={() => setOpen(!open)} 
-          className="md:hidden text-2xl text-white hover:text-purple-400 transition"
-        >
-          {open ? <FaTimes /> : <FaBars />}
-        </button>
+        {/* ✅ MOBILE: User Info + Toggle Button */}
+        <div className="md:hidden flex items-center gap-3">
+          {/* ✅ লগইন থাকলে ইউজার ইনফো দেখাবে */}
+          {user && (
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-purple-500/50">
+                {user?.photo ? (
+                  <img 
+                    src={user.photo} 
+                    alt="Profile" 
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center font-bold text-white text-xs">
+                    {user?.email?.charAt(0)?.toUpperCase()}
+                  </div>
+                )}
+              </div>
+              <span className="text-purple-300 text-sm font-medium hidden sm:block max-w-[100px] truncate">
+                {user?.name || user?.email?.split('@')[0]}
+              </span>
+            </div>
+          )}
+
+          {/* Toggle Button */}
+          <button 
+            onClick={() => setOpen(!open)} 
+            className="text-2xl text-white hover:text-purple-400 transition"
+          >
+            {open ? <FaTimes /> : <FaBars />}
+          </button>
+        </div>
       </div>
 
       {/* MOBILE MENU */}
       {open && (
         <div className="md:hidden bg-[#120c1f]/95 backdrop-blur-lg border-t border-purple-900/50 animate-slideDown">
           <div className="w-full py-6 flex flex-col">
-            {/* ✅ User Info with Photo (if logged in) */}
+            {/* User Info */}
             {user && (
               <div className="flex items-center justify-center gap-3 pb-6 mb-6 border-b border-purple-900/50">
                 <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-purple-500">
@@ -194,10 +216,6 @@ const Navbar = () => {
                       src={user.photo} 
                       alt="Profile" 
                       className="w-full h-full object-cover"
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.parentElement.innerHTML = `<div class="w-full h-full rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center font-bold text-white text-2xl">${user?.email?.charAt(0)?.toUpperCase()}</div>`;
-                      }}
                     />
                   ) : (
                     <div className="w-full h-full rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center font-bold text-white text-2xl">
@@ -216,7 +234,7 @@ const Navbar = () => {
               </div>
             )}
 
-            {/* Menu Items - Centered */}
+            {/* Menu Items */}
             <div className="flex flex-col gap-1">
               <NavLink 
                 to="/" 
@@ -275,7 +293,6 @@ const Navbar = () => {
                     </div>
                   </NavLink>
 
-                  {/* Logout Button */}
                   <button 
                     onClick={handleLogout} 
                     className="flex items-center gap-3 py-3 pl-4 text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all text-left"
