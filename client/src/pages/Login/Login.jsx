@@ -23,6 +23,8 @@ const Login = () => {
       
       // ✅ Google Token decode করুন
       const decoded = jwtDecode(credentialResponse.credential);
+
+      console.log(" Google Profile Photo:", decoded.picture); // ✅ Debugging
       
       // ✅ Backend-এ পাঠান
       await googleLogin({
