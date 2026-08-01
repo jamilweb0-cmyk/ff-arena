@@ -4,10 +4,8 @@ import { AuthContext } from "../../context/AuthContext";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import toast from "react-hot-toast";
-import useScrollToTop from "../../hooks/useScrollToTop";
 
 const Login = () => {
-  useScrollToTop();
   const { login, googleLogin, user, loading } = useContext(AuthContext);
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [isProcessing, setIsProcessing] = useState(false);
@@ -23,14 +21,16 @@ const Login = () => {
       
       // ✅ Google Token decode করুন
       const decoded = jwtDecode(credentialResponse.credential);
-
-      console.log(" Google Profile Photo:", decoded.picture); // ✅ Debugging
       
-      // ✅ Backend-এ পাঠান
+      // ✅ Debugging - কনসোলে দেখুন
+      console.log("Google Profile Photo:", decoded.picture);
+      console.log("Google Profile Data:", decoded);
+      
+      // ✅ Backend-এ পাঠান (photo key হলো 'picture' Google থেকে)
       await googleLogin({
         name: decoded.name,
         email: decoded.email,
-        photo: decoded.picture,
+        photo: decoded.picture, // ✅ এটি িক আছে
         googleId: decoded.sub,
       });
       
@@ -81,7 +81,7 @@ const Login = () => {
               size="large"
               text="signin_with"
               shape="rectangular"
-              width={300}
+              width="100%"
             />
           </div>
 

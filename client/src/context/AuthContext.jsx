@@ -21,7 +21,7 @@ const AuthContextProvider = ({ children }) => {
             // ✅ Photo সহ সব তথ্য localStorage-এ সেভ করুন
             localStorage.setItem("userEmail", res.data.email);
             localStorage.setItem("userName", res.data.name || "");
-            localStorage.setItem("userPhoto", res.data.photo || ""); // ✅ Photo save
+            localStorage.setItem("userPhoto", res.data.photo || "");
           }
         } catch (error) {
           console.error("Token validation failed:", error);
@@ -51,7 +51,7 @@ const AuthContextProvider = ({ children }) => {
       if (res.data.user) {
         localStorage.setItem("userEmail", res.data.user.email);
         localStorage.setItem("userName", res.data.user.name || "");
-        localStorage.setItem("userPhoto", res.data.user.photo || ""); // ✅ Photo save
+        localStorage.setItem("userPhoto", res.data.user.photo || "");
         setUser(res.data.user);
       }
       return res.data;
@@ -63,6 +63,8 @@ const AuthContextProvider = ({ children }) => {
   const googleLogin = async (userData) => {
     setLoading(true);
     try {
+      console.log("📸 Received photo from Google:", userData.photo); // ✅ Debug
+      
       const res = await api.post("/auth/google", {
         name: userData.name,
         email: userData.email,
@@ -78,15 +80,27 @@ const AuthContextProvider = ({ children }) => {
       // ✅ Photo সহ সব তথ্য localStorage-এ সেভ করুন
       localStorage.setItem("userEmail", userData.email);
       localStorage.setItem("userName", userData.name || "");
-      localStorage.setItem("userPhoto", userData.photo || ""); // ✅ Photo save এখানেই সমস্যা হতে পারে!
+      localStorage.setItem("userPhoto", userData.photo || ""); // ✅ Photo save
       
-      setUser(res.data.user || {
+      // ✅ user অবজেক্টে photo সেট করুন
+      const userWithPhoto = res.data.user || {
         email: userData.email,
         name: userData.name,
-        photo: userData.photo, // ✅ Photo set করুন
-      });
+        photo: userData.photo, // ✅ এখানে photo সেট করুন
+      };
+      
+      // ✅ যদি backend থেকে photo না আসে, তাহলে userData থেকে নিন
+      if (!userWithPhoto.photo && userData.photo) {
+        userWithPhoto.photo = userData.photo;
+      }
+      
+      console.log("✅ Setting user with photo:", userWithPhoto); // ✅ Debug
+      setUser(userWithPhoto);
       
       return res.data;
+    } catch (error) {
+      console.error("Google Login Error:", error);
+      throw error;
     } finally {
       setLoading(false);
     }
@@ -102,7 +116,7 @@ const AuthContextProvider = ({ children }) => {
     localStorage.removeItem("token");
     localStorage.removeItem("userEmail");
     localStorage.removeItem("userName");
-    localStorage.removeItem("userPhoto"); // ✅ Photo মুছে ফেলুন
+    localStorage.removeItem("userPhoto");
   };
 
   const authInfo = { user, loading, login, googleLogin, logout };

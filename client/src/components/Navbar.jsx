@@ -27,6 +27,17 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // ✅ useEffect to ensure photo is loaded
+  useEffect(() => {
+    if (user && !user.photo) {
+      // ✅ যদি user.photo না থাকে, localStorage থেকে নিন
+      const savedPhoto = localStorage.getItem("userPhoto");
+      if (savedPhoto) {
+        setUser({ ...user, photo: savedPhoto });
+      }
+    }
+  }, [user]);
+
   const activeStyle = ({ isActive }) =>
     isActive
       ? "text-purple-400 font-semibold relative after:absolute after:left-0 after:-bottom-2 after:w-full after:h-[2px] after:bg-purple-500"
@@ -120,6 +131,7 @@ const Navbar = () => {
                       alt="Profile" 
                       className="w-full h-full object-cover"
                       onError={(e) => {
+                        console.error("❌ Image failed to load:", user.photo);
                         e.target.style.display = 'none';
                         e.target.parentElement.innerHTML = `<div class="w-full h-full rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center font-bold text-white text-sm">${user?.email?.charAt(0)?.toUpperCase()}</div>`;
                       }}
