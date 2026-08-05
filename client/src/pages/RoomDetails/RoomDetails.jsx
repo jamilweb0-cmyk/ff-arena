@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import api from "../../services/axios";
-import toast from "react-hot-toast";
+import { showSuccess, showError } from "../../utils/toast"; // ✅ নতুন টোস্ট ইম্পোর্ট
 import { motion } from "framer-motion";
 import useScrollToTop from "../../hooks/useScrollToTop";
 
@@ -59,7 +59,10 @@ const RoomDetails = () => {
   }, [id, userEmail]);
 
   const handleBooking = async () => {
-    if (!userEmail) { toast.error("Please Login First"); return; }
+    if (!userEmail) { 
+      showError("Please Login First ❌"); // ✅ আপডেট করা হয়েছে
+      return; 
+    }
     if (bookingLoading || alreadyBooked) return;
 
     setBookingLoading(true);
@@ -73,9 +76,9 @@ const RoomDetails = () => {
     try {
       await api.post("/bookings", bookingData);
       setAlreadyBooked(true);
-      toast.success("Booking Successful");
+      showSuccess("Booking Successful! ✅"); // ✅ আপডেট করা হয়েছে
     } catch (error) {
-      toast.error(error.response?.data?.message || "Booking Failed");
+      showError(error.response?.data?.message || "Booking Failed ❌"); // ✅ আপডেট করা হয়েছে
     } finally {
       setBookingLoading(false);
     }

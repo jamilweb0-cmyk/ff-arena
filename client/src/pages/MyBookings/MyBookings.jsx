@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../../services/axios";
 import Swal from "sweetalert2";
-import toast from "react-hot-toast";
+import { showSuccess, showError } from "../../utils/toast"; // ✅ নতুন টোস্ট ইম্পোর্ট
 import useScrollToTop from "../../hooks/useScrollToTop";
 
 const MyBookings = () => {
@@ -17,7 +17,7 @@ const MyBookings = () => {
         setBookings(res.data);
       } catch (error) {
         console.log(error);
-        toast.error("Failed to load bookings");
+        showError("Failed to load bookings ❌"); // ✅ আপডেট করা হয়েছে
       } finally {
         setLoading(false);
       }
@@ -39,10 +39,10 @@ const MyBookings = () => {
     try {
       await api.delete(`/bookings/${id}`);
       setBookings((prev) => prev.filter((booking) => booking._id !== id));
-      toast.success("Booking Cancelled");
+      showSuccess("Booking Cancelled Successfully! ✅"); // ✅ আপডেট করা হয়েছে
     } catch (error) {
       console.log(error);
-      toast.error(error.response?.data?.message || "Failed To Cancel Booking");
+      showError(error.response?.data?.message || "Failed To Cancel Booking ❌"); // ✅ আপডেট করা হয়েছে
     }
   };
 
@@ -62,10 +62,10 @@ const MyBookings = () => {
           booking._id === id ? { ...booking, booking_date: newDate } : booking
         )
       );
-      toast.success("Booking Updated");
+      showSuccess("Booking Updated Successfully! ✅"); // ✅ আপডেট করা হয়েছে
     } catch (error) {
       console.log(error);
-      toast.error(error.response?.data?.message || "Failed To Update Booking");
+      showError(error.response?.data?.message || "Failed To Update Booking ❌"); // ✅ আপডেট করা হয়েছে
     }
   };
 

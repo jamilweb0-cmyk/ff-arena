@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
+import { showSuccess, showError, showLoading, dismissToast } from "../../utils/toast"; // ✅ নতুন টোস্ট ইম্পোর্ট
 import api from "../../services/axios";
 import useScrollToTop from "../../hooks/useScrollToTop";
 
@@ -14,6 +14,10 @@ const AddRoom = () => {
   const handleAddRoom = async (e) => {
     e.preventDefault();
     setLoading(true);
+    
+    // ✅ লোডিং টোস্ট দেখান
+    const loadingId = showLoading("Adding Room...");
+
     const form = e.target;
     const roomData = {
       room_name: form.room_name.value,
@@ -27,11 +31,18 @@ const AddRoom = () => {
 
     try {
       await api.post("/rooms", roomData);
-      toast.success("Room Added Successfully");
+      
+      // ✅ লোডিং টোস্ট বন্ধ করে সাকসেস টোস্ট দেখান
+      dismissToast(loadingId);
+      showSuccess("Room Added Successfully! 🎉");
       navigate("/my-rooms");
+      
     } catch (error) {
       console.log(error);
-      toast.error(error.response?.data?.message || "Failed to Add Room");
+      
+      // ✅ লোডিং টোস্ট বন্ধ করে এরর টোস্ট দেখান
+      dismissToast(loadingId);
+      showError(error.response?.data?.message || "Failed to Add Room ❌");
     } finally {
       setLoading(false);
     }
@@ -40,14 +51,14 @@ const AddRoom = () => {
   const handleImageChange = (e) => {
     const url = e.target.value;
     setImagePreview(url);
-    setImageError(false); // নতুন লিংক দিলে এরর রিসেট হবে
+    setImageError(false);
   };
 
   const handleImageError = () => {
     setImageError(true);
   };
 
-  // প্রি-সেট ইমেজ অপশন (মোবাইল ইউজারদের জন্য সবচেয়ে সহজ উপায়)
+  // প্রি-সেট ইমেজ অপশন
   const presetImages = [
     "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600",
     "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=600",
@@ -93,7 +104,7 @@ const AddRoom = () => {
           <option value="Lone Wolf">Lone Wolf</option>
         </select>
 
-        {/* Entry Fee & Prize Pool (Side by Side on larger screens) */}
+        {/* Entry Fee & Prize Pool */}
         <div className="grid grid-cols-2 gap-4">
           <input
             type="number"
@@ -113,25 +124,24 @@ const AddRoom = () => {
           />
         </div>
 
-        {/* Image URL - Mobile Optimized */}
+        {/* Image URL */}
         <div>
           <input
             type="text"
-            inputMode="url" /* ✅ মোবাইলে URL কিবোর্ড এবং Paste অপশন সহজে আনবে */
+            inputMode="url"
             name="image"
             placeholder="এখানে যেকোনো ইমেজের লিংক পেস্ট করুন..."
             className="w-full p-4 rounded bg-black text-white border border-gray-700 focus:border-purple-500 focus:outline-none text-base break-all"
             onChange={handleImageChange}
             required
           />
-          {/* ✅ মোবাইল ফ্রেন্ডলি টিপস */}
           <p className="text-xs text-gray-400 mt-2 flex items-start gap-1">
             <span>💡</span> 
             <span>Facebook, Imgur বা যেকোনো সাইট থেকে ইমেজের লিংক কপি করে সরাসরি এখানে পেস্ট করুন।</span>
           </p>
         </div>
 
-        {/* ✅ স্মার্ট ইমেজ প্রিভিউ */}
+        {/* ইমেজ প্রিভিউ */}
         {imagePreview && (
           <div className="mt-3 relative rounded-lg overflow-hidden border border-purple-800">
             <img
@@ -143,7 +153,6 @@ const AddRoom = () => {
               onError={handleImageError}
               loading="lazy"
             />
-            {/* যদি প্রিভিউ না আসে, তবুও ইউজারকে ভয় দেখানো হবে না */}
             {imageError && (
               <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/70 p-4">
                 <p className="text-yellow-400 font-semibold text-sm mb-1">⚠️ প্রিভিউ লোড হচ্ছে না</p>
@@ -156,7 +165,7 @@ const AddRoom = () => {
           </div>
         )}
 
-        {/* প্রি-সেট ইমেজ অপশন (মোবাইলে খুব কাজে লাগে) */}
+        {/* প্রি-সেট ইমেজ অপশন */}
         <div>
           <p className="text-sm text-gray-400 mb-3 font-medium">
             অথবা নিচের যেকোনো একটি ইমেজ সিলেক্ট করুন (ট্যাপ করুন):
@@ -184,7 +193,7 @@ const AddRoom = () => {
           </div>
         </div>
 
-        {/* Submit Button - Mobile Friendly Size */}
+        {/* Submit Button */}
         <button
           disabled={loading}
           className="w-full bg-purple-600 p-4 rounded-lg font-bold text-white text-lg shadow-lg hover:bg-purple-700 active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed mt-4"

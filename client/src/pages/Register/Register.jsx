@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/axios";
 import { FaEye, FaEyeSlash, FaUser, FaEnvelope, FaLock } from "react-icons/fa";
-import toast from "react-hot-toast";
+import { showSuccess, showError } from "../../utils/toast"; // ✅ নতুন টোস্ট ইম্পোর্ট
 
 const Register = () => {
   const navigate = useNavigate();
@@ -21,12 +21,12 @@ const Register = () => {
     
     // ✅ Validation
     if (formData.password !== formData.confirmPassword) {
-      toast.error("Passwords do not match!");
+      showError("Passwords do not match! ❌"); // ✅ আপডেট করা হয়েছে
       return;
     }
     
     if (formData.password.length < 6) {
-      toast.error("Password must be at least 6 characters!");
+      showError("Password must be at least 6 characters! ❌"); // ✅ আপডেট করা হয়েছে
       return;
     }
 
@@ -38,10 +38,10 @@ const Register = () => {
         password: formData.password,
       });
       
-      toast.success("Registration Successful! Please login.");
+      showSuccess("Registration Successful! Please login. ✅"); // ✅ আপডেট করা হয়েছে
       navigate("/login");
     } catch (error) {
-      toast.error(error.response?.data?.message || "Registration Failed");
+      showError(error.response?.data?.message || "Registration Failed ❌"); // ✅ আপডেট করা হয়েছে
     } finally {
       setIsProcessing(false);
     }

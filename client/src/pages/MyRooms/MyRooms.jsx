@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../../services/axios";
 import Swal from "sweetalert2";
-import toast from "react-hot-toast";
+import { showSuccess, showError } from "../../utils/toast"; // ✅ নতুন টোস্ট ইম্পোর্ট
 import { Link } from "react-router-dom";
 import useScrollToTop from "../../hooks/useScrollToTop";
 
@@ -18,7 +18,7 @@ const MyRooms = () => {
         setRooms(res.data.data);
       } catch (error) {
         console.log(error);
-        toast.error("Failed to load rooms");
+        showError("Failed to load rooms ❌"); // ✅ আপডেট করা হয়েছে
       } finally {
         setLoading(false);
       }
@@ -40,10 +40,10 @@ const MyRooms = () => {
     try {
       await api.delete(`/rooms/${id}`);
       setRooms((prev) => prev.filter((room) => room._id !== id));
-      toast.success("Room Deleted Successfully");
+      showSuccess("Room Deleted Successfully! 🗑️"); // ✅ আপডেট করা হয়েছে
     } catch (error) {
       console.log(error);
-      toast.error(error.response?.data?.message || "Failed To Delete Room");
+      showError(error.response?.data?.message || "Failed To Delete Room ❌"); // ✅ আপডেট করা হয়েছে
     }
   };
 

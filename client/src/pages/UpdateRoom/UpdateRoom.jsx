@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../../services/axios";
-import toast from "react-hot-toast";
+import { showSuccess, showError } from "../../utils/toast"; // ✅ নতুন টোস্ট ইম্পোর্ট
 import useScrollToTop from "../../hooks/useScrollToTop";
 
 const UpdateRoom = () => {
@@ -25,7 +25,7 @@ const UpdateRoom = () => {
         setImagePreview(roomData.image); // ✅ বর্তমান ইমেজ প্রিভিউতে সেট
       } catch (error) {
         console.log(error);
-        toast.error("Failed to load room");
+        showError("Failed to load room ❌"); // ✅ আপডেট করা হয়েছে
       } finally {
         setFetchLoading(false);
       }
@@ -47,11 +47,11 @@ const UpdateRoom = () => {
     };
     try {
       await api.put(`/rooms/${id}`, updatedRoom);
-      toast.success("Room Updated Successfully");
+      showSuccess("Room Updated Successfully! ✅"); // ✅ আপডেট করা হয়েছে
       navigate("/my-rooms");
     } catch (error) {
       console.log(error);
-      toast.error(error.response?.data?.message || "Failed To Update Room");
+      showError(error.response?.data?.message || "Failed To Update Room ❌"); // ✅ আপডেট করা হয়েছে
     } finally {
       setLoading(false);
     }
