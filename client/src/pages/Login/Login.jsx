@@ -3,14 +3,17 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
-import { FaEye, FaEyeSlash } from "react-icons/fa"; // ✅ Eye icons
-import { showSuccess, showError } from "../../utils/toast"; // ✅ নতুন টোস্ট ইম্পোর্ট
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { showSuccess, showError } from "../../utils/toast";
+import useScrollToTop from "../../hooks/useScrollToTop"; // ✅ এই লাইনটি যোগ করুন
 
 const Login = () => {
+  useScrollToTop(); // ✅ এই লাইনটি যোগ করুন (সবচেয়ে উপরে)
+  
   const { login, googleLogin, user, loading } = useContext(AuthContext);
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [isProcessing, setIsProcessing] = useState(false);
-  const [showPassword, setShowPassword] = useState(false); // ✅ Password visibility state
+  const [showPassword, setShowPassword] = useState(false);
   
   const navigate = useNavigate();
   const location = useLocation();
@@ -21,13 +24,11 @@ const Login = () => {
     try {
       setIsProcessing(true);
       
-      // ✅ Google Token decode করুন
       const decoded = jwtDecode(credentialResponse.credential);
       
       console.log("Google Profile Photo:", decoded.picture);
       console.log("Google Profile Data:", decoded);
       
-      // ✅ Backend-এ পাঠান
       await googleLogin({
         name: decoded.name,
         email: decoded.email,
@@ -122,7 +123,7 @@ const Login = () => {
             {/* ✅ Password Field with Eye Toggle */}
             <div className="relative">
               <input
-                type={showPassword ? "text" : "password"} // ✅ Dynamic type
+                type={showPassword ? "text" : "password"}
                 placeholder="Password"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}

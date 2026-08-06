@@ -3,8 +3,11 @@ import { useNavigate } from "react-router-dom";
 import api from "../../services/axios";
 import { FaEye, FaEyeSlash, FaUser, FaEnvelope, FaLock } from "react-icons/fa";
 import { showSuccess, showError } from "../../utils/toast"; // ✅ নতুন টোস্ট ইম্পোর্ট
+import useScrollToTop from "../../hooks/useScrollToTop";
 
 const Register = () => {
+  useScrollToTop(); // ✅ এই লাইনটি যোগ করুন (সবচেয়ে উপরে)
+  
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
