@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import { RouterProvider } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import ScrollToTop from "./components/ScrollToTop"; // ✅ যোগ করুন
 import router from "./routes/router";
 import AuthProvider from "./context/AuthContext";
 import "./index.css";
@@ -13,9 +14,10 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <AuthProvider>
-        <RouterProvider router={router} />
+        <RouterProvider router={router}>
+          <ScrollToTop /> {/* ✅ RouterProvider এর ভেতরে */}
+        </RouterProvider>
         
-        {/* ✅ Professional Toast Configuration */}
         <Toaster
           position="top-center"
           reverseOrder={false}
@@ -63,7 +65,6 @@ ReactDOM.createRoot(document.getElementById("root")).render(
             top: 80,
           }}
         />
-        
       </AuthProvider>
     </GoogleOAuthProvider>
   </React.StrictMode>
